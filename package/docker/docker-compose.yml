@@ -1,0 +1,41 @@
+name: nacos-pg
+
+services:
+  nacos:
+    build:
+      context: ../../
+      dockerfile: package/bake/Dockerfile
+    container_name: nacos
+    restart: always
+    image: seanly/appset:nacos-2.4.1-2-pg-1
+    ports:
+      - "7848:7848"
+      - "8848:8848"
+      - "9848:9848"
+      - "9849:9849"
+    environment:
+      - MODE=standalone
+      - PREFER_HOST_MODE=hostname
+      - EMBEDDED_STORAGE=embedded
+      - NACOS_AUTH_ENABLE=true
+      - NACOS_AUTH_IDENTITY_KEY=nacos
+      - NACOS_AUTH_IDENTITY_VALUE=nacos
+      - NACOS_AUTH_TOKEN=OaGBtRHntYFEf5yISL4EluSfOzES6Aepqb77bRCMlJtzRcl1LB0NiB2mLTFORLoY8HyIBfENK/DhQSGncvV7w
+      - SPRING_DATASOURCE_PLATFORM=postgresql
+      - DB_URL_HOST=nacos-pg
+      - DB_URL_PORT=5236
+      - DB_URL_DB_NAME=
+      - DB_USER=root
+      - DB_PASSWORD=nacos@root
+      - DB_POOL_CONFIG_DRIVER_CLASS_NAME=org.postgresql.Driver
+      - DB_URL_DB_PARAM=currentSchema=NACOS2&useSSL=false&useUnicode=true&characterEncoding=UTF8&autoReconnect=true
+    labels:
+      - "traefik.http.routers.nacos.rule=Host(`nacos.${DOMAIN}`)"
+      - "traefik.http.routers.nacos.tls=true"
+      - "traefik.http.routers.nacos.tls.certResolver=le"
+      - "traefik.http.services.nacos.loadbalancer.server.port=8848"
+
+networks:
+  default:
+    name: opsbox-network
+    external: true
